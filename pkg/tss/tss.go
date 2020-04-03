@@ -163,3 +163,33 @@ func (t *TPM) ReadPCR(pcrIndex uint32) ([]byte, error) {
 		return nil, fmt.Errorf("unsupported TPM version: %x", t.Version)
 	}
 }
+
+func (t *TPM) TakeOwnership(newAuth, newSRKAuth string) (bool, error) {
+	switch t.Version {
+	case TPMVersion12:
+		return takeOwnership12(t.RWC, newAuth, newSRKAuth)
+	case TPMVersion20:
+		return takeOwnership20(t.RWC, newAuth, newSRKAuth)
+	}
+	return false, fmt.Errorf("unsupported TPM version: %x", t.Version)
+}
+
+func (t *TPM) ReadPubEK(ownerPW string) ([]byte, error) {
+	switch t.Version {
+	case TPMVersion12:
+		return readPubEK12(t.RWC, ownerPW)
+	case TPMVersion20:
+		return readPubEK20(t.RWC, ownerPW)
+	}
+	return nil, fmt.Errorf("unsupported TPM version: %x", t.Version)
+}
+
+func (t *TPM) ResetLockValue(ownerPW string) (bool, error) {
+	switch t.Version {
+	case TPMVersion12:
+		return resetLockValue12(t.RWC, ownerPW)
+	case TPMVersion20:
+		return resetLockValue20(t.RWC, ownerPW)
+	}
+	return false, fmt.Errorf("unsupported TPM version: %x", t.Version)
+}
